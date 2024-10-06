@@ -88,39 +88,38 @@ end
 
 -- Lockpick event handler for entering houses.
 -- Triggers skillcheck callback on calling player before teleporting them inside
----@param playerSource number Player server Id
 ---@param isAdvanced boolean Is this an advanced lockpick
-AddEventHandler('lockpicks:UseLockpick', function(playerSource, isAdvanced)
-    local player = exports.qbx_core:GetPlayer(playerSource)
-    local playerCoords = GetEntityCoords(GetPlayerPed(playerSource))
+RegisterNetEvent('qbx_houserobbery:server:enterHouse', function(isAdvanced)
+    local src = source
+    local player = exports.qbx_core:GetPlayer(src)
+    local playerCoords = GetEntityCoords(GetPlayerPed(src))
     local closestHouseIndex = getClosestHouse(playerCoords)
     local house = sharedConfig.houses[closestHouseIndex]
     local amount = exports.qbx_core:GetDutyCountType('leo')
-
     if not house then return end
     if house.opened then return end
     if not isAdvanced and not player.Functions.GetItemByName(config.requiredItems[2]) then return end
     if amount < config.minimumPolice then
         if config.notEnoughCopsNotify then
-            exports.qbx_core:Notify(playerSource, locale('notify.no_police', config.minimumPolice), 'error')
+            exports.qbx_core:Notify(src, locale('notify.no_police', config.minimumPolice), 'error')
             return
         end
     end
 
-    local result = lib.callback.await('qbx_houserobbery:client:checkTime', playerSource)
+    local result = lib.callback.await('qbx_houserobbery:client:checkTime', src)
 
     if not result then return end
 
-    local skillcheck = lib.callback.await('qbx_houserobbery:client:startSkillcheck', playerSource, sharedConfig.interiors[house.interior].skillcheck)
+    local skillcheck = lib.callback.await('qbx_houserobbery:client:startSkillcheck', src, sharedConfig.interiors[house.interior].skillcheck)
 
     if skillcheck then
         sharedConfig.houses[closestHouseIndex].opened = true
-        exports.qbx_core:Notify(playerSource, locale('notify.success_skillcheck'), 'success')
+        exports.qbx_core:Notify(src, locale('notify.success_skillcheck'), 'success')
         TriggerClientEvent('qbx_houserobbery:client:syncconfig', -1, sharedConfig.houses[closestHouseIndex], closestHouseIndex)
-        enterHouse(playerSource, sharedConfig.interiors[house.interior].exit, house.routingbucket, closestHouseIndex)
+        enterHouse(src, sharedConfig.interiors[house.interior].exit, house.routingbucket, closestHouseIndex)
         policeAlert(locale('notify.police_alert'), house.interior)
     else
-        exports.qbx_core:Notify(playerSource, locale('notify.fail_skillcheck'), 'error')
+        exports.qbx_core:Notify(src, locale('notify.fail_skillcheck'), 'error')
     end
 end)
 

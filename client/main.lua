@@ -215,6 +215,10 @@ local function setupHouses()
     end
 end
 
+RegisterNetEvent('lockpicks:UseLockpick', function(itemData)
+    local isAdvanced = itemData?.name == 'advancedlockpick'
+    TriggerServerEvent('qbx_houserobbery:server:enterHouse', isAdvanced)
+end)
 
 ---@param difficulty SkillCheckDifficulity[] Ox_lib skillcheck difficulty table
 lib.callback.register('qbx_houserobbery:client:startSkillcheck', function(difficulty)
