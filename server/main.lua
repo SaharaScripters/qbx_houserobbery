@@ -31,7 +31,7 @@ end
 ---@param closestHouseIndex number House index to store with player citizenid so we know what house they are in
 local function enterHouse(source, coords, bucket, closestHouseIndex)
     local player = exports.qbx_core:GetPlayer(source)
-    SetResourceKvpInt(player.PlayerData.citizenid, closestHouseIndex)
+    player.Functions.SetMetaData('houserobbery', closestHouseIndex)
     TriggerClientEvent('qbx_houserobbery:client:screenfade', source)
     Wait(200)
     local ped = GetPlayerPed(source)
@@ -52,7 +52,7 @@ local function leaveHouse(source, coords)
     Wait(200)
     local ped = GetPlayerPed(source)
     local player = exports.qbx_core:GetPlayer(source)
-    SetResourceKvpInt(player.PlayerData.citizenid, 0)
+    player.Functions.SetMetaData('houserobbery', 0)
     SetEntityCoords(ped, coords.x, coords.y, coords.z, false, false, false, false)
     exports.qbx_core:SetPlayerBucket(source, 0)
     FreezeEntityPosition(ped, true)
@@ -82,7 +82,7 @@ end
 ---@param src number
 local function checkPlayerSpawnLocation(src)
     local player = exports.qbx_core:GetPlayer(src)
-    local index = GetResourceKvpInt(player.PlayerData.citizenid)
+    local index = player.Functions.GetMetaData('houserobbery')
     if not index or index == 0 then return end
     local house = sharedConfig.houses[index]
     if not house then return end
@@ -152,7 +152,8 @@ end)
 -- NetEvent to handle player exiting house
 RegisterNetEvent('qbx_houserobbery:server:leaveHouse', function()
     local playerCoords = GetEntityCoords(GetPlayerPed(source --[[@as number]]))
-    local index = GetResourceKvpInt(exports.qbx_core:GetPlayer(source).PlayerData.citizenid)
+    local player = exports.qbx_core:GetPlayer(source)
+    local index = player.Functions.GetMetaData('houserobbery')
     local exit = vec3(sharedConfig.interiors[sharedConfig.houses[index].interior].exit.x, sharedConfig.interiors[sharedConfig.houses[index].interior].exit.y, sharedConfig.interiors[sharedConfig.houses[index].interior].exit.z)
 
     if #(playerCoords - exit) > 3 then return end
