@@ -261,3 +261,9 @@ AddEventHandler('onResourceStart', function(resource)
 
     setupHouses()
 end)
+
+RegisterNetEvent('qbx_houserobbery:client:screenfade', function()
+    DoScreenFadeOut(250)
+    while not IsScreenFadedOut() do Wait(50) end
+    DoScreenFadeIn(500)
+end)

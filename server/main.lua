@@ -32,7 +32,7 @@ end
 local function enterHouse(source, coords, bucket, closestHouseIndex)
     local player = exports.qbx_core:GetPlayer(source)
     SetResourceKvpInt(player.PlayerData.citizenid, closestHouseIndex)
-    TriggerClientEvent('qb-interior:client:screenfade', source)
+    TriggerClientEvent('qbx_houserobbery:client:screenfade', source)
     Wait(200)
     local ped = GetPlayerPed(source)
     SetEntityCoords(ped, coords.x, coords.y, coords.z, false, false, false, false)
@@ -48,9 +48,11 @@ end
 ---@param source number
 ---@param coords vector3
 local function leaveHouse(source, coords)
-    TriggerClientEvent('qb-interior:client:screenfade', source)
+    TriggerClientEvent('qbx_houserobbery:client:screenfade', source)
     Wait(200)
     local ped = GetPlayerPed(source)
+    local player = exports.qbx_core:GetPlayer(source)
+    SetResourceKvpInt(player.PlayerData.citizenid, 0)
     SetEntityCoords(ped, coords.x, coords.y, coords.z, false, false, false, false)
     exports.qbx_core:SetPlayerBucket(source, 0)
     FreezeEntityPosition(ped, true)
@@ -75,6 +77,17 @@ local function shuffleTables(index)
             config.rewards[b].items[i], config.rewards[b].items[j] = config.rewards[b].items[j], config.rewards[b].items[i]
         end
     end
+end
+
+---@param src number
+local function checkPlayerSpawnLocation(src)
+    local player = exports.qbx_core:GetPlayer(src)
+    local index = GetResourceKvpInt(player.PlayerData.citizenid)
+    if not index or index == 0 then return end
+    local house = sharedConfig.houses[index]
+    if not house then return end
+    local bucket = house.routingbucket
+    exports.qbx_core:SetPlayerBucket(source, bucket)
 end
 
 -- Alert police to house robbery in progress
@@ -290,3 +303,10 @@ end)
 AddEventHandler('playerJoining', function()
     TriggerClientEvent('qbx_houserobbery:client:syncconfig', source, sharedConfig.houses)
 end)
+
+RegisterNetEvent("QBCore:Server:OnPlayerLoaded", function ()
+    -- spawn player in interior with correct bucket if he was in one
+    local src = source
+    checkPlayerSpawnLocation(src)
+end)
+
