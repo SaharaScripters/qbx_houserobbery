@@ -154,6 +154,7 @@ RegisterNetEvent('qbx_houserobbery:server:leaveHouse', function()
     local playerCoords = GetEntityCoords(GetPlayerPed(source --[[@as number]]))
     local player = exports.qbx_core:GetPlayer(source)
     local index = player.Functions.GetMetaData('houserobbery')
+    if not index or index == 0 then return end
     local exit = vec3(sharedConfig.interiors[sharedConfig.houses[index].interior].exit.x, sharedConfig.interiors[sharedConfig.houses[index].interior].exit.y, sharedConfig.interiors[sharedConfig.houses[index].interior].exit.z)
 
     if #(playerCoords - exit) > 3 then return end
