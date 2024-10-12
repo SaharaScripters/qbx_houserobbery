@@ -18,7 +18,11 @@ return {
             pickups = {
                 {coords = vec3(262.77, -1002.53, -99.01), model = 'prop_tv_flat_03', reward = 'small_tv'},
                 {coords = vec3(265.85, -995.46, -99.01),  model = 'prop_toaster_02', reward = 'toaster'}
-            }
+            },
+            cooldown = {
+                amount = 5,
+                period = 60,
+            },
         },
         [2] = {
             exit = vec4(346.55, -1012.83, -99.2, 5.8),
@@ -41,7 +45,11 @@ return {
             pickups = {
                 {coords = vec3(344.14, -1002.33, -99.2), model = 'prop_micro_01',   reward = 'microwave'},
                 {coords = vec3(342.31, -1003.3, -99.2),  model = 'prop_toaster_01', reward = 'toaster'}
-            }
+            },
+            cooldown = {
+                amount = 2,
+                period = 60,
+            },
         },
         [3] = {
             exit = vec4(-174.27, 497.71, 137.65, 191.5),
@@ -66,7 +74,11 @@ return {
             pickups = {
                 {coords = vec3(-165.26, 495.01, 137.65), model = 'prop_micro_02',   reward = 'microwave'},
                 {coords = vec3(-165.89, 497.0, 137.65),  model = 'prop_toaster_01', reward = 'toaster'}
-            }
+            },
+            cooldown = {
+                amount = 1,
+                period = 60,
+            },
         },
     },
     houses = {

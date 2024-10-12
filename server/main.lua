@@ -2,6 +2,37 @@ local config = require 'config.server'
 local sharedConfig = require 'config.shared'
 local startedLoot = {}
 local startedPickup = {}
+-- Track robberies per interior
+local robberies = {
+    [1] = {},
+    [2] = {},
+    [3] = {}
+}
+
+-- Function to check if robbery is allowed
+---@param interiorType number Interior index number to check for cooldown
+---@return boolean
+local function canRobHouse(interiorType)
+    local cooldownConfig = sharedConfig.interiors[interiorType]?.cooldown
+    if not cooldownConfig then
+        return false
+    end
+    local now = os.time()
+    local recentRobberies = 0
+
+    -- Count recent robberies within the cooldown period
+    for i, time in ipairs(robberies[interiorType]) do
+        if now - time < cooldownConfig.period then
+            recentRobberies = recentRobberies + 1
+        else
+            -- Remove old entries
+            table.remove(robberies[interiorType], i)
+        end
+    end
+
+    -- Check if max robberies reached
+    return  recentRobberies >= cooldownConfig.amount
+end
 
 -- Returns closes house index number from sharedConfig table
 ---@param coords vector3 Point to check for closest house point
@@ -122,13 +153,17 @@ RegisterNetEvent('qbx_houserobbery:server:enterHouse', function(isAdvanced)
     local result = lib.callback.await('qbx_houserobbery:client:checkTime', src)
 
     if not result then return end
-
+    if not canRobHouse(house.interior) then
+        exports.qbx_core:Notify(src, locale('notify.cooldown'), 'error')
+        return
+    end
     local skillcheck = lib.callback.await('qbx_houserobbery:client:startSkillcheck', src, sharedConfig.interiors[house.interior].skillcheck)
 
     if skillcheck then
+        table.insert(robberies[house.interior], os.time())
         sharedConfig.houses[closestHouseIndex].opened = true
         exports.qbx_core:Notify(src, locale('notify.success_skillcheck'), 'success')
-        TriggerClientEvent('qbx_houserobbery:client:syncconfig', -1, sharedConfig.houses[closestHouseIndex], closestHouseIndex)
+        TriggerClientEvent('qbx_houserobbery:client:syncconfig', -1, house, closestHouseIndex)
         enterHouse(src, sharedConfig.interiors[house.interior].exit, house.routingbucket, closestHouseIndex)
         policeAlert(locale('notify.police_alert'), house.interior)
     else

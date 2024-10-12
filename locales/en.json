@@ -11,6 +11,7 @@
         "fail_skillcheck": "Failed Skillcheck",
         "success_skillcheck": "Successful Skillcheck",
         "busy": "Someone is already on it",
-        "police_alert": "Suspicious activity near owned property"
+        "police_alert": "Suspicious activity near owned property",
+        "cooldown": "Robbery on Cooldown please wait a bit before trying again"
     }
 }
