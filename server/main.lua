@@ -19,7 +19,6 @@ local function canRobHouse(interiorType)
     end
     local now = os.time()
     local recentRobberies = 0
-
     -- Count recent robberies within the cooldown period
     for i, time in ipairs(robberies[interiorType]) do
         if now - time < cooldownConfig.period then
@@ -29,9 +28,8 @@ local function canRobHouse(interiorType)
             table.remove(robberies[interiorType], i)
         end
     end
-
     -- Check if max robberies reached
-    return  recentRobberies >= cooldownConfig.amount
+    return  recentRobberies < cooldownConfig.amount
 end
 
 -- Returns closes house index number from sharedConfig table

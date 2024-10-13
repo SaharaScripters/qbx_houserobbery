@@ -20,8 +20,8 @@ return {
                 {coords = vec3(265.85, -995.46, -99.01),  model = 'prop_toaster_02', reward = 'toaster'}
             },
             cooldown = {
-                amount = 5,
-                period = 60,
+                amount = 3,
+                period = 10*60, -- 10 mins
             },
         },
         [2] = {
@@ -48,7 +48,7 @@ return {
             },
             cooldown = {
                 amount = 2,
-                period = 60,
+                period = 10*60,
             },
         },
         [3] = {
@@ -77,7 +77,7 @@ return {
             },
             cooldown = {
                 amount = 1,
-                period = 60,
+                period = 10*60,
             },
         },
     },
