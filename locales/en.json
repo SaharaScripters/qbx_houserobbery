@@ -4,7 +4,8 @@
         "enter_requirements": "Lockpick | Screwdriver set",
         "leave_house": "[E] - Leave House",
         "search": "[E] - Search Around",
-        "pickup": "[E] - Grab %s"
+        "pickup": "[E] - Grab %s",
+        "police_secure": "[G] - Secure the house"
     },
     "notify": {
         "no_police": "Not Enough Police (%s Required)",
@@ -15,6 +16,7 @@
         "cooldown": "Robbery on Cooldown please wait a bit before trying again",
         "no_skills": "You don't have the required skills to do this",
         "no_money": "You don't have enough money to do this",
-        "no_houses": "No houses to rob"
+        "no_houses": "No houses to rob",
+        "secured": "House Secured"
     }
 }

@@ -224,6 +224,19 @@ RegisterNetEvent('qbx_houserobbery:server:enterHouse', function(isAdvanced)
     end
 end)
 
+RegisterNetEvent('qbx_houserobbery:server:secureHouse', function(index)
+    local src = source
+    local player = exports.qbx_core:GetPlayer(src)
+    local house = sharedConfig.houses[index]
+    if not house then return end
+    if not house.opened then return end
+    if house.secured then return end
+    if not player.PlayerData.job.name == 'police' then return end
+    sharedConfig.houses[index].secured = true
+    exports.qbx_core:Notify(src, locale('notify.secured'), 'success')
+    TriggerClientEvent('qbx_houserobbery:client:syncconfig', -1, house, index)
+end)
+
 -- Teleports player inside house and sets routing bucket.
 ---@param index number House index number to locate in config
 RegisterNetEvent('qbx_houserobbery:server:enterHouse', function(index)

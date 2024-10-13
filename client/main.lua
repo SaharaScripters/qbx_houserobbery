@@ -253,15 +253,22 @@ end
 ---@param houseId table
 local function handleHouseEntrance(houseId)
     local id = houseId.id
+    local isSecured = sharedConfig.houses[id].secured
+    if isSecured then return end
     local isOpen = sharedConfig.houses[id].opened
     if isOpen then
         if IsControlJustReleased(0, 38) then
             lib.playAnim(cache.ped, 'anim@heists@keycard@', 'exit', 5.0, 1.0, -1, 16, 0, false, false, false)
-            house = houseId.id
             TriggerServerEvent('qbx_houserobbery:server:enterHouse', houseId.id)
+        elseif IsControlJustReleased(0, 47) then
+            lib.playAnim(cache.ped, 'anim@heists@keycard@', 'exit', 5.0, 1.0, -1, 16, 0, false, false, false)
+            TriggerServerEvent('qbx_houserobbery:server:secureHouse', houseId.id)
         end
     end
     local displayMessage = isOpen and locale('text.enter_house') or locale('text.enter_requirements')
+    if isOpen and QBX.PlayerData.job.name == 'police' then
+        displayMessage = displayMessage .. '\n' .. locale('text.police_secure')
+    end
     if config.useDrawText then
         qbx.drawText3d({ text = displayMessage, coords = houseId.coords })
     elseif not lib.isTextUIOpen() then

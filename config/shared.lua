@@ -107,6 +107,7 @@ return {
             routingbucket = 600,
             interior = 1,
             opened = false,
+            secured = false,
             coords = vec3(495.25, -1823.31, 28.87),
             setup = {
                 loot = {
@@ -125,6 +126,7 @@ return {
             routingbucket = 601,
             interior = 1,
             opened = false,
+            secured = false,
             coords = vec3(311.99, -1956.12, 24.62),
             setup = {
                 loot = {
@@ -143,6 +145,7 @@ return {
             routingbucket = 602,
             interior = 1,
             opened = false,
+            secured = false,
             coords = vec3(1193.67, -1656.54, 43.03),
             setup = {
                 loot = {
@@ -161,6 +164,7 @@ return {
             routingbucket = 603,
             interior = 1,
             opened = false,
+            secured = false,
             coords = vec3(179.29, -1923.98, 21.37),
             setup = {
                 loot = {
@@ -179,6 +183,7 @@ return {
             routingbucket = 604,
             interior = 1,
             opened = false,
+            secured = false,
             coords = vec3(-64.58, -1449.61, 32.52),
             setup = {
                 loot = {
@@ -197,6 +202,7 @@ return {
             routingbucket = 605,
             interior = 1,
             opened = false,
+            secured = false,
             coords = vec3(-138.22, -1470.78, 36.99),
             setup = {
                 loot = {
@@ -215,6 +221,7 @@ return {
             routingbucket = 606,
             interior = 2,
             opened = false,
+            secured = false,
             coords = vec3(-884.14, -1072.51, 2.53),
             setup = {
                 loot = {
@@ -233,6 +240,7 @@ return {
             routingbucket = 607,
             interior = 2,
             opened = false,
+            secured = false,
             coords = vec3(-1134.11, -1050.19, 2.15),
             setup = {
                 loot = {
@@ -251,6 +259,7 @@ return {
             routingbucket = 608,
             interior = 2,
             opened = false,
+            secured = false,
             coords = vec3(-1089.85, -1680.31, 4.67),
             setup = {
                 loot = {
@@ -269,6 +278,7 @@ return {
             routingbucket = 609,
             interior = 2,
             opened = false,
+            secured = false,
             coords = vec3(960.01, -669.94, 58.45),
             setup = {
                 loot = {
@@ -287,6 +297,7 @@ return {
             routingbucket = 610,
             interior = 2,
             opened = false,
+            secured = false,
             coords = vec3(1240.51, -601.62, 69.78),
             setup = {
                 loot = {
@@ -305,6 +316,7 @@ return {
             routingbucket = 611,
             interior = 2,
             opened = false,
+            secured = false,
             coords = vec3(1098.57, -464.54, 67.32),
             setup = {
                 loot = {
@@ -323,6 +335,7 @@ return {
             routingbucket = 612,
             interior = 1,
             opened = false,
+            secured = false,
             coords = vec3(69.43, -56.69, 73.02),
             setup = {
                 loot = {
@@ -341,6 +354,7 @@ return {
             routingbucket = 613,
             interior = 1,
             opened = false,
+            secured = false,
             coords = vec3(-102.84, -11.91, 70.52),
             setup = {
                 loot = {
@@ -359,6 +373,7 @@ return {
             routingbucket = 614,
             interior = 2,
             opened = false,
+            secured = false,
             coords = vec3(-332.97, 57.08, 54.43),
             setup = {
                 loot = {
@@ -377,6 +392,7 @@ return {
             routingbucket = 615,
             interior = 2,
             opened = false,
+            secured = false,
             coords = vec3(-1009.5, 479.12, 79.59),
             setup = {
                 loot = {
@@ -395,6 +411,7 @@ return {
             routingbucket = 616,
             interior = 2,
             opened = false,
+            secured = false,
             coords = vec3(-371.74, 343.46, 109.94),
             setup = {
                 loot = {
@@ -413,6 +430,7 @@ return {
             routingbucket = 617,
             interior = 1,
             opened = false,
+            secured = false,
             coords = vec3(1435.45, 3657.04, 34.4),
             setup = {
                 loot = {
@@ -431,6 +449,7 @@ return {
             routingbucket = 618,
             interior = 1,
             opened = false,
+            secured = false,
             coords = vec3(1808.93, 3907.97, 33.74),
             setup = {
                 loot = {
@@ -449,6 +468,7 @@ return {
             routingbucket = 619,
             interior = 1,
             opened = false,
+            secured = false,
             coords = vec3(-480.95, 6266.33, 13.63),
             setup = {
                 loot = {
@@ -467,6 +487,7 @@ return {
             routingbucket = 620,
             interior = 1,
             opened = false,
+            secured = false,
             coords = vec3(-280.54, 6350.67, 32.6),
             setup = {
                 loot = {
@@ -485,6 +506,7 @@ return {
             routingbucket = 621,
             interior = 3,
             opened = false,
+            secured = false,
             coords = vec3(-174.65, 502.47, 137.42),
             setup = {
                 loot = {
