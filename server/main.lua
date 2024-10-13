@@ -9,10 +9,9 @@ local robberies = {
     [3] = {}
 }
 
--- Function to check if robbery is allowed
----@param interiorType number Interior index number to check for cooldown
----@return boolean
-local function canRobHouse(interiorType)
+--- @param interiorType number Interior index number to check for cooldown
+--- @return boolean
+local function houseOnCooldown(interiorType)
     local cooldownConfig = sharedConfig.interiors[interiorType]?.cooldown
     if not cooldownConfig then
         return false
@@ -29,7 +28,50 @@ local function canRobHouse(interiorType)
         end
     end
     -- Check if max robberies reached
-    return  recentRobberies < cooldownConfig.amount
+    return  recentRobberies >= cooldownConfig.amount
+end
+
+--- @param interiorType number Interior index number to check for cooldown
+--- @param src number Player server Id
+--- @return boolean
+local function hasRequiredSkills(interiorType, src)
+    local requiredSkills = sharedConfig.interiors[interiorType]?.requiredPersonalSkills or {}
+    for _, skillReq in ipairs(requiredSkills) do
+        local playerSkillLevel = exports.ss_skills:getSkillLevel(src, skillReq.name)
+        if playerSkillLevel < skillReq.level then
+            return false
+        end
+    end
+    return true
+end
+
+
+--- @param interiorType number Interior index number to check for cooldown
+--- @param src number
+local function getRewardExp(interiorType, src)
+    local rewardSkills = sharedConfig.interiors[interiorType]?.rewardPersonalSkills or {}
+    for _, skillReward in ipairs(rewardSkills) do
+        local exp = type(skillReward.exp) == 'number' and skillReward.exp or math.random(skillReward.exp.min, skillReward.exp.max)
+        exports.ss_skills:addXp(src, skillReward.name, exp)
+    end
+end
+
+-- Function to check if robbery is allowed
+---@param interiorType number Interior index number to check for cooldown
+---@param src number Player server Id
+---@return boolean
+local function canRobHouse(interiorType, src)
+    local success = hasRequiredSkills(interiorType, src)
+    if not success then
+        exports.qbx_core:Notify(src, locale('notify.no_skills'), 'error')
+        return false
+    end
+    success = not houseOnCooldown(interiorType)
+    if not success then
+        exports.qbx_core:Notify(src, locale('notify.cooldown'), 'error')
+        return false
+    end
+    return true
 end
 
 -- Returns closes house index number from sharedConfig table
@@ -151,10 +193,7 @@ RegisterNetEvent('qbx_houserobbery:server:enterHouse', function(isAdvanced)
     local result = lib.callback.await('qbx_houserobbery:client:checkTime', src)
 
     if not result then return end
-    if not canRobHouse(house.interior) then
-        exports.qbx_core:Notify(src, locale('notify.cooldown'), 'error')
-        return
-    end
+    if not canRobHouse(house.interior, src) then return end
     local skillcheck = lib.callback.await('qbx_houserobbery:client:startSkillcheck', src, sharedConfig.interiors[house.interior].skillcheck)
 
     if skillcheck then
@@ -162,6 +201,7 @@ RegisterNetEvent('qbx_houserobbery:server:enterHouse', function(isAdvanced)
         sharedConfig.houses[closestHouseIndex].opened = true
         exports.qbx_core:Notify(src, locale('notify.success_skillcheck'), 'success')
         TriggerClientEvent('qbx_houserobbery:client:syncconfig', -1, house, closestHouseIndex)
+        getRewardExp(house.interior, src)
         enterHouse(src, sharedConfig.interiors[house.interior].exit, house.routingbucket, closestHouseIndex)
         policeAlert(locale('notify.police_alert'), house.interior)
     else

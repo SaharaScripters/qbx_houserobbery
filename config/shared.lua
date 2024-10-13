@@ -23,6 +23,13 @@ return {
                 amount = 3,
                 period = 10*60, -- 10 mins
             },
+            infoPrice = 1000,
+            requiredPersonalSkills = {
+              { name = 'houserobbery', level = 1 }
+            },
+            rewardPersonalSkills = {
+              { name = 'houserobbery', exp = 10 }
+            },
         },
         [2] = {
             exit = vec4(346.55, -1012.83, -99.2, 5.8),
@@ -49,6 +56,13 @@ return {
             cooldown = {
                 amount = 2,
                 period = 10*60,
+            },
+            infoPrice = 2000,
+            requiredPersonalSkills = {
+              { name = 'houserobbery', level = 3 }
+            },
+            rewardPersonalSkills = {
+              { name = 'houserobbery', exp = 20 }
             },
         },
         [3] = {
@@ -78,6 +92,13 @@ return {
             cooldown = {
                 amount = 1,
                 period = 10*60,
+            },
+            infoPrice = 3000,
+            requiredPersonalSkills = {
+              { name = 'houserobbery', level = 5 }
+            },
+            rewardPersonalSkills = {
+              { name = 'houserobbery', exp = 30 }
             },
         },
     },
