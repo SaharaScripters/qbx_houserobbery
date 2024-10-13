@@ -164,9 +164,24 @@ end
 -- Alert police to house robbery in progress
 ---@param text string Text to send
 ---@param interiorId number Interior index number to fetch timeout from config
-local function policeAlert(text, interiorId)
+---@param coords vector3 Coords to send
+local function policeAlert(text, interiorId, coords)
     SetTimeout(sharedConfig.interiors[interiorId].callCopsTimeout, function()
-        TriggerEvent('police:server:policeAlert', text)
+        local callData = {
+            code = '10-31',
+            offense = 'House Robbery',
+            info =  {
+                {
+                    label = text,
+                    icon = 'home',
+                }
+            },
+            coords = {coords.x, coords.y},
+            blip = 67,
+            isEmergency = true,
+            blipCoords = coords
+        }
+        exports['bub-mdt']:createCall(callData)
     end)
 end
 
@@ -203,7 +218,7 @@ RegisterNetEvent('qbx_houserobbery:server:enterHouse', function(isAdvanced)
         TriggerClientEvent('qbx_houserobbery:client:syncconfig', -1, house, closestHouseIndex)
         getRewardExp(house.interior, src)
         enterHouse(src, sharedConfig.interiors[house.interior].exit, house.routingbucket, closestHouseIndex)
-        policeAlert(locale('notify.police_alert'), house.interior)
+        policeAlert(locale('notify.police_alert'), house.interior, house.coords)
     else
         exports.qbx_core:Notify(src, locale('notify.fail_skillcheck'), 'error')
     end
