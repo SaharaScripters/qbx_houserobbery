@@ -13,6 +13,8 @@
         "busy": "Someone is already on it",
         "police_alert": "Suspicious activity near owned property",
         "cooldown": "Robbery on Cooldown please wait a bit before trying again",
-        "no_skills": "You don't have the required skills to do this"
+        "no_skills": "You don't have the required skills to do this",
+        "no_money": "You don't have enough money to do this",
+        "no_houses": "No houses to rob"
     }
 }

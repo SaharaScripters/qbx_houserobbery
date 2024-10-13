@@ -1,6 +1,9 @@
 local config = require 'config.client'
 local sharedConfig = require 'config.shared'
+local bossLocations = config.bossLocations
+local bossPeds = {}
 local houseLoot = {}
+local houseBlip = nil
 local house = 1
 local ITEMS = exports.ox_inventory:Items()
 
@@ -13,9 +16,114 @@ local function dropFingerprint()
     end
 end
 
+local function removeHouseBlip()
+    if houseBlip then
+        RemoveBlip(houseBlip)
+        houseBlip = nil
+    end
+end
+
+local function createHouseBlip(coords)
+    if houseBlip then
+        removeHouseBlip()
+    end
+    houseBlip = AddBlipForCoord(coords.x, coords.y, coords.z)
+    SetBlipSprite(houseBlip, 40)
+    SetBlipScale(houseBlip, 0.8)
+    SetBlipColour(houseBlip, 3)
+    SetBlipAsShortRange(houseBlip, true)
+    BeginTextCommandSetBlipName('STRING')
+    AddTextComponentString('House Robbery')
+    EndTextCommandSetBlipName(houseBlip)
+end
+
+local function removeBossPeds()
+    exports.ox_target:removeLocalEntity(bossPeds)
+    for _, ped in pairs(bossPeds) do
+        DeleteEntity(ped)
+    end
+    bossPeds = {}
+end
+
+local function openBossMenu()
+    local menuItems = {}
+    local availableInteriors = lib.callback.await('qbx_houserobbery:server:getAvailableInteriors', false)
+    for i = 1, #sharedConfig.interiors do
+        if availableInteriors[i] and availableInteriors[i] > 0 then
+            local description = 'Click to get house coords'
+            description = '\n' .. 'Price: ' .. sharedConfig.interiors[i].infoPrice .. '$'
+            menuItems[#menuItems + 1] = {
+                title = 'Available Class(' .. i .. '): ' .. availableInteriors[i],
+                icon = 'fas fa-door-open',
+                description = description,
+                onSelect = function()
+                    TriggerServerEvent('qbx_houserobbery:server:getHouseCoords', i)
+                end,
+            }
+        end
+    end
+    if #menuItems == 0 then
+        menuItems[#menuItems + 1] = {
+            title = 'No Available Houses',
+            icon = 'fas fa-door-closed',
+            description = 'No houses available to rob',
+        }
+    end
+
+    lib.registerContext({
+        id = 'house_robbery_boss_menu',
+        title = 'Robbery Boss Menu',
+        options = menuItems,
+    })
+    lib.showContext('house_robbery_boss_menu')
+end
+
+--- @param targetData table
+--- @return number
+local function spawnBossPed(targetData)
+    local hash = joaat(targetData.model)
+    lib.requestModel(hash, 10000)
+    local ped = CreatePed(4, hash, targetData.coords.x, targetData.coords.y, targetData.coords.z, targetData.coords.w, false, false)
+    TaskStartScenarioInPlace(ped, targetData.scenario, 1, false)
+    FreezeEntityPosition(ped, true)
+    SetEntityInvincible(ped, true)
+    SetBlockingOfNonTemporaryEvents(ped, true)
+    SetModelAsNoLongerNeeded(hash)
+    return ped
+end
+
+  --- @param ped number
+  --- @param targetData table
+local function attachBossTarget(ped, targetData)
+    local options = {
+        {
+            icon = 'fas fa-car',
+            label = 'open boss menu',
+            canInteract = function()
+            if not IsPedInAnyVehicle(cache.ped, false) then
+                return true
+            end
+            end,
+            onSelect = function()
+                openBossMenu()
+            end,
+            distance = targetData.distance or 2.5,
+        },
+    }
+    exports.ox_target:addLocalEntity(ped, options)
+    bossPeds[1 + #bossPeds] = ped
+end
+
+local function loadBossPeds()
+    for _, targetData in pairs(bossLocations) do
+        local ped = spawnBossPed(targetData)
+        attachBossTarget(ped, targetData)
+    end
+end
+
 -- Handle pickup of objects in an IPL. These are props that are part of the IPL
 -- currentDistance is used because
----@param pickup CPoint Loot pickup point
+---@param pickup table Loot pickup point
 local function handleHousePickup(pickup)
     local pickupId = pickup.housePickup
     if pickup.currentDistance < 0.8 and not sharedConfig.houses[house].pickups[pickupId].isOpened then
@@ -142,7 +250,7 @@ local function removeLoot()
 end
 
 -- Handles showing house entrance text and processing entrance for opened houses
----@param houseId CPoint
+---@param houseId table
 local function handleHouseEntrance(houseId)
     local id = houseId.id
     local isOpen = sharedConfig.houses[id].opened
@@ -162,7 +270,7 @@ local function handleHouseEntrance(houseId)
 end
 
 -- Handles showing house exit text and processing exit
----@param interiorId CPoint
+---@param interiorId table
 local function handleHouseExits(interiorId)
 
     local label = locale('text.leave_house')
@@ -220,7 +328,7 @@ RegisterNetEvent('lockpicks:UseLockpick', function(itemData)
     TriggerServerEvent('qbx_houserobbery:server:enterHouse', isAdvanced)
 end)
 
----@param difficulty SkillCheckDifficulity[] Ox_lib skillcheck difficulty table
+---@param difficulty table
 lib.callback.register('qbx_houserobbery:client:startSkillcheck', function(difficulty)
     lib.playAnim(cache.ped, 'veh@break_in@0h@p_m_one@', 'std_force_entry_rds', 3.0, 3.0, -1, 17, 0, false, false, false)
     local success = lib.skillCheck(difficulty)
@@ -245,7 +353,15 @@ RegisterNetEvent('qbx_houserobbery:client:syncconfig', function(data, index)
     end
 end)
 
+RegisterNetEvent('qbx_houserobbery:client:showHouseCoords', function(houseCoords)
+    createHouseBlip(houseCoords)
+    SetTimeout(5 * 60 * 1000, function()
+        removeHouseBlip()
+    end)
+end)
+
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+    loadBossPeds()
     setupHouses()
 end)
 
@@ -254,12 +370,23 @@ RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
     for _, v in pairs(lib.points.getAllPoints()) do
         v:remove()
     end
+    removeBossPeds()
+    removeHouseBlip()
 end)
 
 AddEventHandler('onResourceStart', function(resource)
     if GetCurrentResourceName() ~= resource then return end
-
+    loadBossPeds()
     setupHouses()
+end)
+
+AddEventHandler('onResourceStop', function(resource)
+    if GetCurrentResourceName() ~= resource then return end
+    for _, v in pairs(lib.points.getAllPoints()) do
+        v:remove()
+    end
+    removeBossPeds()
+    removeHouseBlip()
 end)
 
 RegisterNetEvent('qbx_houserobbery:client:screenfade', function()

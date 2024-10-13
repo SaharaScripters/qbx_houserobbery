@@ -312,6 +312,21 @@ lib.callback.register('qbx_houserobbery:server:checkPickup', function(source, ho
     return true
 end)
 
+lib.callback.register('qbx_houserobbery:server:getAvailableInteriors', function(source)
+    local src = source
+    local interiors = {}
+    for i = 1, #sharedConfig.houses do
+        if not sharedConfig.houses[i].opened then
+            local interiorIndex = sharedConfig.houses[i].interior
+            interiors[interiorIndex] = (interiors[interiorIndex] or 0) + 1
+        end
+    end
+    for interiorIndex, count in pairs(interiors) do
+        interiors[interiorIndex] = hasRequiredSkills(interiorIndex, src) and not houseOnCooldown(interiorIndex) and count or 0
+    end
+    return interiors
+end)
+
 -- NetEvent to update pickup point status and give reward
 ---@param houseIndex number House index from sharedConfig
 ---@param pickupIndex number Pickup index from sharedConfig (dynamically generated)
@@ -343,6 +358,32 @@ RegisterNetEvent('qbx_houserobbery:server:pickupCancelled', function(houseIndex,
 
     startedPickup[source] = false
     sharedConfig.houses[houseIndex].pickups[pickupIndex].isBusy = false
+end)
+
+RegisterNetEvent('qbx_houserobbery:server:getHouseCoords', function(interiorIndex)
+    local src = source
+    local player = exports.qbx_core:GetPlayer(src)
+    local interiorInfo = sharedConfig.interiors[interiorIndex]
+    if not interiorInfo then return end
+    if not canRobHouse(interiorIndex, src) then return end
+    local price = interiorInfo.infoPrice
+    local availabelHouses = {}
+    for i = 1, #sharedConfig.houses do
+        if sharedConfig.houses[i].interior == interiorIndex and not sharedConfig.houses[i].opened then
+            table.insert(availabelHouses, sharedConfig.houses[i])
+        end
+    end
+    if #availabelHouses == 0 then
+        exports.qbx_core:Notify(src, locale('notify.no_houses'), 'error')
+        return
+    end
+    if not player.Functions.RemoveMoney('cash', price) then
+        exports.qbx_core:Notify(src, locale('notify.no_money'), 'error')
+        return
+    end
+    local houseIndex = math.random(#availabelHouses)
+    local houseCoords = availabelHouses[houseIndex].coords
+    TriggerClientEvent('qbx_houserobbery:client:showHouseCoords', src, houseCoords)
 end)
 
 -- Startup thread to shuffle loot for all houses in configuration and sync configuration to clients
