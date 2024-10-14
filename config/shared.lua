@@ -25,10 +25,10 @@ return {
             },
             infoPrice = 1000,
             requiredPersonalSkills = {
-              { name = 'houserobbery', level = 1 }
+              { name = 'lockpick', level = 1 }
             },
             rewardPersonalSkills = {
-              { name = 'houserobbery', exp = 10 }
+              { name = 'lockpick', exp = 10 }
             },
         },
         [2] = {
@@ -59,10 +59,10 @@ return {
             },
             infoPrice = 2000,
             requiredPersonalSkills = {
-              { name = 'houserobbery', level = 3 }
+              { name = 'lockpick', level = 3 }
             },
             rewardPersonalSkills = {
-              { name = 'houserobbery', exp = 20 }
+              { name = 'lockpick', exp = 20 }
             },
         },
         [3] = {
@@ -95,10 +95,10 @@ return {
             },
             infoPrice = 3000,
             requiredPersonalSkills = {
-              { name = 'houserobbery', level = 5 }
+              { name = 'lockpick', level = 5 }
             },
             rewardPersonalSkills = {
-              { name = 'houserobbery', exp = 30 }
+              { name = 'lockpick', exp = 30 }
             },
         },
     },
