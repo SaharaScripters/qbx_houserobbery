@@ -11,8 +11,18 @@ local function dropFingerprint()
     if qbx.isWearingGloves() then return end
 
     local coords = GetEntityCoords(cache.ped)
+    local heading = GetEntityHeading(cache.ped)
+    local v4Coords = vector4(coords.x, coords.y, coords.z, heading)
     if config.fingerprintChance > math.random(0, 100) then
-        TriggerServerEvent('evidence:server:CreateFingerDrop', coords)
+        local evidenceData = {
+            evidenceType = 'fingerprint',
+            coords = v4Coords,
+            interior = GetInteriorFromEntity(cache.ped),
+            dropZone = 'house ' .. house,
+            dropBy = QBX.PlayerData.citizenid,
+            fingerprintId = QBX.PlayerData.metadata.fingerprint,
+        }
+        TriggerServerEvent('ss_evidence:server:dropEvidence', evidenceData)
     end
 end
 

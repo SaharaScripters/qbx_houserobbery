@@ -56,6 +56,16 @@ local function getRewardExp(interiorType, src)
     end
 end
 
+--- @param interiorType number Interior index number to check for cooldown
+--- @param src number
+local function getLootExp(interiorType, src)
+    local rewardSkills = sharedConfig.interiors[interiorType]?.lootSkillReward or {}
+    for _, skillReward in ipairs(rewardSkills) do
+        local exp = type(skillReward.exp) == 'number' and skillReward.exp or math.random(skillReward.exp.min, skillReward.exp.max)
+        exports.ss_skills:addXp(src, skillReward.name, exp)
+    end
+end
+
 -- Function to check if robbery is allowed
 ---@param interiorType number Interior index number to check for cooldown
 ---@param src number Player server Id
@@ -286,20 +296,23 @@ end)
 ---@param houseIndex number House index from sharedConfig
 ---@param lootIndex number Loot index from sharedConfig (dynamically generated)
 RegisterNetEvent('qbx_houserobbery:server:lootFinished', function(houseIndex, lootIndex)
-    local playerCoords = GetEntityCoords(GetPlayerPed(source --[[@as number]]))
-    local player = exports.qbx_core:GetPlayer(source)
+    local src = source
+    local playerCoords = GetEntityCoords(GetPlayerPed(src --[[@as number]]))
+    local player = exports.qbx_core:GetPlayer(src)
     local loot = sharedConfig.houses[houseIndex].loot[lootIndex]
     local reward = config.rewards[loot.pool[math.random(#loot.pool)]]
 
     if #(playerCoords - loot.coords) > 3 then return end
-    if not startedLoot[source] then return end
+    if not startedLoot[src] then return end
     if not loot.isBusy then return end
     if loot.isOpened then return end
 
     for i = 1, math.random(reward.togive.min, reward.togive.max) do
         player.Functions.AddItem(reward.items[i], math.random(reward.toget.min, reward.toget.max))
     end
-    startedLoot[source] = false
+    local interiorIndex = sharedConfig.houses[houseIndex].interior
+    getLootExp(interiorIndex, src)
+    startedLoot[src] = false
     sharedConfig.houses[houseIndex].loot[lootIndex].isBusy = false
     sharedConfig.houses[houseIndex].loot[lootIndex].isOpened = true
     TriggerClientEvent('qbx_houserobbery:client:syncconfig', -1, sharedConfig.houses[houseIndex], houseIndex)
@@ -441,6 +454,20 @@ CreateThread(function()
     end
     Wait(50)
     TriggerClientEvent('qbx_houserobbery:client:syncconfig', -1, sharedConfig.houses)
+end)
+
+RegisterNetEvent('qbx_core:server:onSetMetaData', function(key, oldValue, newValue, source)
+    if key == 'isdead' and newValue then
+        local src = source
+        local player = exports.qbx_core:GetPlayer(src)
+        if not player then return end
+        local index = player.Functions.GetMetaData('houserobbery')
+        if not index or index == 0 then return end
+        local house = sharedConfig.houses[index]
+        SetTimeout(100, function()
+            leaveHouse(src, house.coords)
+        end)
+    end
 end)
 
 -- Event handler to sync configuration to new players joining server
