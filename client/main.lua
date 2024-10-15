@@ -21,8 +21,9 @@ local function dropFingerprint()
             dropZone = 'house ' .. house,
             dropBy = QBX.PlayerData.citizenid,
             fingerprintId = QBX.PlayerData.metadata.fingerprint,
+            bucket = LocalPlayer.state.instance,
         }
-        TriggerServerEvent('ss_evidence:server:dropEvidence', evidenceData)
+        exports.ss_evidence:dropEvidence(evidenceData)
     end
 end
 
