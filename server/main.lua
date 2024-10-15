@@ -476,8 +476,9 @@ RegisterNetEvent('qbx_core:server:onSetMetaData', function(key, oldValue, newVal
         local index = player.Functions.GetMetaData('houserobbery')
         if not index or index == 0 then return end
         local house = sharedConfig.houses[index]
+        local deathCoords = house.deathCoords or house.coords
         SetTimeout(100, function()
-            leaveHouse(src, house.coords)
+            leaveHouse(src, deathCoords)
         end)
     end
 end)
