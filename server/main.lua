@@ -1,5 +1,6 @@
 local config = require 'config.server'
 local sharedConfig = require 'config.shared'
+
 local startedLoot = {}
 local startedPickup = {}
 -- Track robberies per interior
@@ -123,6 +124,7 @@ local function enterHouse(source, coords, bucket, closestHouseIndex)
     FreezeEntityPosition(ped, true)
     Wait(200)
     FreezeEntityPosition(ped, false)
+    lib.logger(source, 'EnteredHouse', json.encode({ coords = coords, bucket = bucket, closestHouseIndex = closestHouseIndex }))
 end
 
 -- Returns player to house entrace in routing bucket 0
@@ -139,6 +141,7 @@ local function leaveHouse(source, coords)
     FreezeEntityPosition(ped, true)
     Wait(200)
     FreezeEntityPosition(ped, false)
+    lib.logger(source, 'LeftHouse', json.encode({ coords = coords }))
 end
 
 -- Shuffle loot tables
@@ -169,13 +172,16 @@ local function checkPlayerSpawnLocation(src)
     if not house then return end
     local bucket = house.routingbucket
     exports.qbx_core:SetPlayerBucket(source, bucket)
+    -- lib.logger(src, 'InvalidTargetOrSrc', json.encode({ target = target, src = src }))
+    lib.logger(src, 'SpawnedIn', json.encode({ index = index, house = house }))
 end
 
 -- Alert police to house robbery in progress
+---@param src number Player server Id
 ---@param text string Text to send
 ---@param interiorId number Interior index number to fetch timeout from config
 ---@param coords vector3 Coords to send
-local function policeAlert(text, interiorId, coords)
+local function policeAlert(src, text, interiorId, coords)
     SetTimeout(sharedConfig.interiors[interiorId].callCopsTimeout, function()
         local callData = {
             code = '10-31',
@@ -192,6 +198,7 @@ local function policeAlert(text, interiorId, coords)
             blipCoords = coords
         }
         exports['bub-mdt']:createCall(callData)
+        lib.logger(src, 'PoliceAlerted', json.encode({ text = text, interiorId = interiorId, coords = coords }))
     end)
 end
 
@@ -222,13 +229,14 @@ RegisterNetEvent('qbx_houserobbery:server:enterHouse', function(isAdvanced)
     local skillcheck = lib.callback.await('qbx_houserobbery:client:startSkillcheck', src, sharedConfig.interiors[house.interior].skillcheck)
 
     if skillcheck then
+        lib.logger(src, 'OpenedHouse', json.encode({ closestHouseIndex = closestHouseIndex, house = house }))
         table.insert(robberies[house.interior], os.time())
         sharedConfig.houses[closestHouseIndex].opened = true
         exports.qbx_core:Notify(src, locale('notify.success_skillcheck'), 'success')
         TriggerClientEvent('qbx_houserobbery:client:syncconfig', -1, house, closestHouseIndex)
         getRewardExp(house.interior, src)
         enterHouse(src, sharedConfig.interiors[house.interior].exit, house.routingbucket, closestHouseIndex)
-        policeAlert(locale('notify.police_alert'), house.interior, house.coords)
+        policeAlert(src, locale('notify.police_alert'), house.interior, house.coords)
     else
         exports.qbx_core:Notify(src, locale('notify.fail_skillcheck'), 'error')
     end
@@ -245,6 +253,7 @@ RegisterNetEvent('qbx_houserobbery:server:secureHouse', function(index)
     sharedConfig.houses[index].secured = true
     exports.qbx_core:Notify(src, locale('notify.secured'), 'success')
     TriggerClientEvent('qbx_houserobbery:client:syncconfig', -1, house, index)
+    lib.logger(src, 'SecuredHouse', json.encode({ index = index, house = house }))
 end)
 
 -- Teleports player inside house and sets routing bucket.
@@ -316,6 +325,7 @@ RegisterNetEvent('qbx_houserobbery:server:lootFinished', function(houseIndex, lo
     sharedConfig.houses[houseIndex].loot[lootIndex].isBusy = false
     sharedConfig.houses[houseIndex].loot[lootIndex].isOpened = true
     TriggerClientEvent('qbx_houserobbery:client:syncconfig', -1, sharedConfig.houses[houseIndex], houseIndex)
+    lib.logger(src, 'Looted', json.encode({ houseIndex = houseIndex, lootIndex = lootIndex, reward = reward }))
 end)
 
 -- NetEvent to handle cancelling loot attempt
@@ -386,6 +396,7 @@ RegisterNetEvent('qbx_houserobbery:server:pickupFinished', function(houseIndex, 
     sharedConfig.houses[houseIndex].pickups[pickupIndex].isBusy = false
     sharedConfig.houses[houseIndex].pickups[pickupIndex].isOpened = true
     TriggerClientEvent('qbx_houserobbery:client:syncconfig', -1, sharedConfig.houses[houseIndex], houseIndex)
+    lib.logger(source, 'PickedUp', json.encode({ houseIndex = houseIndex, pickupIndex = pickupIndex, reward = pickup.reward }))
 end)
 
 -- NetEvent to handle cancelling pickup attempt
@@ -425,6 +436,7 @@ RegisterNetEvent('qbx_houserobbery:server:getHouseCoords', function(interiorInde
     local houseIndex = math.random(#availabelHouses)
     local houseCoords = availabelHouses[houseIndex].coords
     TriggerClientEvent('qbx_houserobbery:client:showHouseCoords', src, houseCoords)
+    lib.logger(src, 'GetCoords', json.encode({ houseIndex = houseIndex, houseCoords = houseCoords, price = price }))
 end)
 
 -- Startup thread to shuffle loot for all houses in configuration and sync configuration to clients
