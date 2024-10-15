@@ -132,10 +132,42 @@ local function loadBossPeds()
     end
 end
 
+local function blackListedJob()
+    for _, job in pairs(config.blackListedJobs) do
+        if QBX.PlayerData.job.name == job then
+            return true
+        end
+    end
+    return false
+end
+
+local function blackListedState()
+    for _, state in pairs(config.blackListedStates) do
+        if LocalPlayer.state[state] then
+            return true
+        end
+    end
+    return false
+end
+
+local function blackListedLootState()
+    for _, state in pairs(config.blackListedLootStates) do
+        if LocalPlayer.state[state] then
+            return true
+        end
+    end
+    return false
+end
+
+local function blackListed()
+    return blackListedJob() or blackListedState() or blackListedLootState()
+end
+
 -- Handle pickup of objects in an IPL. These are props that are part of the IPL
 -- currentDistance is used because
 ---@param pickup table Loot pickup point
 local function handleHousePickup(pickup)
+    if blackListed() then return end
     local pickupId = pickup.housePickup
     if pickup.currentDistance < 0.8 and not sharedConfig.houses[house].pickups[pickupId].isOpened then
         if config.showPrompts then
@@ -183,6 +215,7 @@ end
 -- Function for handling loot pickup and display inside interiors.
 ---@param lootId number Index number for loot point
 local function handleHouseLoot(lootId)
+    if blackListed() then return end
     if not sharedConfig.houses[house].opened then return end
     if not sharedConfig.houses[house].loot[lootId].isOpened then
         local label = locale('text.search')
@@ -263,6 +296,7 @@ end
 -- Handles showing house entrance text and processing entrance for opened houses
 ---@param houseId table
 local function handleHouseEntrance(houseId)
+    if blackListedState() then return end
     local id = houseId.id
     local isSecured = sharedConfig.houses[id].secured
     if isSecured then return end
@@ -290,7 +324,7 @@ end
 -- Handles showing house exit text and processing exit
 ---@param interiorId table
 local function handleHouseExits(interiorId)
-
+    if blackListedState() then return end
     local label = locale('text.leave_house')
     if config.useDrawText then
         qbx.drawText3d({ text = label, coords = interiorId.coords })

@@ -11,5 +11,21 @@ return {
             distance = 2.5,
         },
         -- Add more boss locations as needed
-    }
+    },
+    blackListedJobs = {
+        'police',
+        'ambulance',
+        'civilprotection',
+    },
+    blackListedStates = {
+        'isDead',
+        'carry',
+        'carriedBy',
+        'escorting',
+        'escortedBy',
+    },
+    blackListedLootStates = {
+        'isZiptied',
+        'isCuffed',
+    },
 }
