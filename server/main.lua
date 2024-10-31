@@ -46,7 +46,6 @@ local function hasRequiredSkills(interiorType, src)
     return true
 end
 
-
 --- @param interiorType number Interior index number to check for cooldown
 --- @param src number
 local function getRewardExp(interiorType, src)
@@ -221,13 +220,12 @@ RegisterNetEvent('qbx_houserobbery:server:enterHouse', function(isAdvanced)
             return
         end
     end
-
     local result = lib.callback.await('qbx_houserobbery:client:checkTime', src)
-
-    if not result then return end
+    if not result then
+        exports.qbx_core:Notify(src, locale('notify.not_time'), 'error')
+        return end
     if not canRobHouse(house.interior, src) then return end
     local skillcheck = lib.callback.await('qbx_houserobbery:client:startSkillcheck', src, sharedConfig.interiors[house.interior].skillcheck)
-
     if skillcheck then
         lib.logger(src, 'OpenedHouse', json.encode({ closestHouseIndex = closestHouseIndex, house = house }))
         table.insert(robberies[house.interior], os.time())
@@ -261,11 +259,9 @@ end)
 RegisterNetEvent('qbx_houserobbery:server:enterHouse', function(index)
     local playerCoords = GetEntityCoords(GetPlayerPed(source --[[@as number]]))
     local closestHouseIndex = getClosestHouse(playerCoords)
-
     if closestHouseIndex ~= index then return end
     if not closestHouseIndex then return end
     if not sharedConfig.houses[index].opened then return end
-
     enterHouse(source --[[@as number]], sharedConfig.interiors[sharedConfig.houses[closestHouseIndex].interior].exit, sharedConfig.houses[closestHouseIndex].routingbucket, closestHouseIndex)
 end)
 
@@ -276,9 +272,7 @@ RegisterNetEvent('qbx_houserobbery:server:leaveHouse', function()
     local index = player.Functions.GetMetaData('houserobbery')
     if not index or index == 0 then return end
     local exit = vec3(sharedConfig.interiors[sharedConfig.houses[index].interior].exit.x, sharedConfig.interiors[sharedConfig.houses[index].interior].exit.y, sharedConfig.interiors[sharedConfig.houses[index].interior].exit.z)
-
     if #(playerCoords - exit) > 3 then return end
-
     leaveHouse(source --[[@as number]], sharedConfig.houses[index].coords)
 end)
 
@@ -290,12 +284,10 @@ end)
 lib.callback.register('qbx_houserobbery:server:checkLoot', function(source, houseIndex, lootIndex)
     local playerCoords = GetEntityCoords(GetPlayerPed(source))
     local loot = sharedConfig.houses[houseIndex].loot[lootIndex]
-
     if #(playerCoords - loot.coords) > 3 then return end
     if loot.isBusy then exports.qbx_core:Notify(source, locale('notify.busy')) return end
     if loot.isOpened then return end
     if not sharedConfig.houses[houseIndex].opened then return end
-
     startedLoot[source] = true
     sharedConfig.houses[houseIndex].loot[lootIndex].isBusy = true
     return true
@@ -310,12 +302,10 @@ RegisterNetEvent('qbx_houserobbery:server:lootFinished', function(houseIndex, lo
     local player = exports.qbx_core:GetPlayer(src)
     local loot = sharedConfig.houses[houseIndex].loot[lootIndex]
     local reward = config.rewards[loot.pool[math.random(#loot.pool)]]
-
     if #(playerCoords - loot.coords) > 3 then return end
     if not startedLoot[src] then return end
     if not loot.isBusy then return end
     if loot.isOpened then return end
-
     for i = 1, math.random(reward.togive.min, reward.togive.max) do
         player.Functions.AddItem(reward.items[i], math.random(reward.toget.min, reward.toget.max))
     end
@@ -333,10 +323,8 @@ end)
 ---@param lootIndex number Loot index from sharedConfig (dynamically generated)
 RegisterNetEvent('qbx_houserobbery:server:lootCancelled', function(houseIndex, lootIndex)
     local playerCoords = GetEntityCoords(GetPlayerPed(source --[[@as number]]))
-
     if #(playerCoords - sharedConfig.houses[houseIndex].loot[lootIndex].coords) > 3 then return end
     if not startedLoot[source] then return end
-
     startedLoot[source] = false
     sharedConfig.houses[houseIndex].loot[lootIndex].isBusy = false
 end)
@@ -350,7 +338,6 @@ lib.callback.register('qbx_houserobbery:server:checkPickup', function(source, ho
     local playerCoords = GetEntityCoords(GetPlayerPed(source))
     local house = sharedConfig.houses[houseIndex]
     if not house or not house.pickups then return end
-
     local pickup = house.pickups[pickupIndex]
     if not pickup or #(playerCoords - pickup.coords) > 3 then return end
     if pickup.isBusy then
@@ -385,12 +372,15 @@ RegisterNetEvent('qbx_houserobbery:server:pickupFinished', function(houseIndex, 
     local playerCoords = GetEntityCoords(GetPlayerPed(source --[[@as number]]))
     local player = exports.qbx_core:GetPlayer(source)
     local pickup = sharedConfig.houses[houseIndex].pickups[pickupIndex]
-
     if #(playerCoords - pickup.coords) > 3 then return end
     if not startedPickup[source] then return end
     if not pickup.isBusy then return end
     if pickup.isOpened then return end
-
+    if not exports.ox_inventory:CanCarryItem(source, pickup.reward, 1) then
+        exports.qbx_core:Notify(source, locale('notify.cant_carry'), 'error')
+        sharedConfig.houses[houseIndex].pickups[pickupIndex].isBusy = false
+        return
+    end
     player.Functions.AddItem(pickup.reward, 1)
     startedPickup[source] = false
     sharedConfig.houses[houseIndex].pickups[pickupIndex].isBusy = false
@@ -404,10 +394,8 @@ end)
 ---@param pickupIndex number Pickup index from sharedConfig (dynamically generated)
 RegisterNetEvent('qbx_houserobbery:server:pickupCancelled', function(houseIndex, pickupIndex)
     local playerCoords = GetEntityCoords(GetPlayerPed(source --[[@as number]]))
-
     if #(playerCoords - sharedConfig.houses[houseIndex].pickups[pickupIndex].coords) > 3 then return end
     if not startedPickup[source] then return end
-
     startedPickup[source] = false
     sharedConfig.houses[houseIndex].pickups[pickupIndex].isBusy = false
 end)

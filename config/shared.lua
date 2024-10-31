@@ -3,6 +3,35 @@ return {
     -- And change the loot pools around to give players different rewards. The player will randomly get the rewards from one of the pools defined underneath.
     interiors = {
         [1] = {
+            exit = vec4(151.36, -1008.06, -99.00, 180),
+            skillcheck = {'easy', 'easy', 'easy', 'easy'},
+            callCopsTimeout = 1000,
+            loot = {
+                {coords = vec3(154.90, -1005.86, -99.00), pool = {1, 3}},
+                {coords = vec3(154.58, -1003.37, -99.00), pool = {1, 2}},
+                {coords = vec3(150.81, -1004.56, -99.04), pool = {1, 2}},
+                {coords = vec3(151.72, -1001.20, -99.00), pool = {1, 2}},
+            },
+            pickups = {
+                {coords = vec3(151.25, -1003.10, -99.00), model = 'prop_kettle', reward = 'tier1_kettle'},
+            },
+            cooldown = {
+                amount = 3,
+                period = 10*60, -- 10 mins
+            },
+            infoPrice = 100,
+            requiredPersonalSkills = {
+                { name = 'lockpicking', level = 1 },
+                { name = 'houserobbery', level = 1 }
+            },
+            rewardPersonalSkills = {
+                { name = 'lockpicking', exp = 1 }
+            },
+            lootSkillReward = {
+                { name = 'houserobbery', exp = 1 }
+            },
+        },
+        [2] = {
             exit = vec4(266.11, -1007.61, -101.01, 357.68),
             skillcheck = {'easy', 'easy', 'easy', 'easy'},
             callCopsTimeout = 30000,
@@ -35,7 +64,7 @@ return {
                 { name = 'houserobbery', exp = 1 }
             },
         },
-        [2] = {
+        [3] = {
             exit = vec4(346.55, -1012.83, -99.2, 5.8),
             skillcheck = {'easy', 'easy', 'easy', 'easy'},
             callCopsTimeout = 25000,
@@ -73,7 +102,7 @@ return {
                 { name = 'houserobbery', exp = 2 }
             },
         },
-        [3] = {
+        --[[[3] = {
             exit = vec4(-174.27, 497.71, 137.65, 191.5),
             skillcheck = {'easy', 'easy', 'easy', 'easy'},
             callCopsTimeout = 20000,
@@ -112,19 +141,20 @@ return {
             lootSkillReward = {
                 { name = 'houserobbery', exp = 3 }
             },
-        },
+        },--]]
     },
     houses = {
         [1] = {
-            routingbucket = 600,
+            routingbucket = 500,
             interior = 1,
             opened = false,
             secured = false,
-            coords = vec3(495.25, -1823.31, 28.87),
+            coords = vec3(-35.82, -1555.30, 30.68),
+            deathCoords = vec3(-33.57, -1552.68, 30.69),
             setup = {
                 loot = {
-                    min = 3,
-                    max = 7
+                    min = 2,
+                    max = 3
                 },
                 pickups = {
                     min = 1,
@@ -135,15 +165,16 @@ return {
             pickups = {}
         },
         [2] = {
-            routingbucket = 601,
+            routingbucket = 501,
             interior = 1,
             opened = false,
             secured = false,
-            coords = vec3(311.99, -1956.12, 24.62),
+            coords = vec3(-44.67, -1547.12, 31.45),
+            deathCoords = vec3(-41.23, -1545.76, 30.69),
             setup = {
                 loot = {
-                    min = 3,
-                    max = 7
+                    min = 2,
+                    max = 4
                 },
                 pickups = {
                     min = 1,
@@ -154,15 +185,16 @@ return {
             pickups = {}
         },
         [3] = {
-            routingbucket = 602,
+            routingbucket = 502,
             interior = 1,
             opened = false,
             secured = false,
-            coords = vec3(1193.67, -1656.54, 43.03),
+            coords = vec3(-36.14, -1536.95, 31.45),
+            deathCoords = vec3(-36.97, -1540.72, 30.69),
             setup = {
                 loot = {
-                    min = 3,
-                    max = 7
+                    min = 2,
+                    max = 4
                 },
                 pickups = {
                     min = 1,
@@ -173,15 +205,16 @@ return {
             pickups = {}
         },
         [4] = {
-            routingbucket = 603,
+            routingbucket = 503,
             interior = 1,
             opened = false,
             secured = false,
-            coords = vec3(179.29, -1923.98, 21.37),
+            coords = vec3(-26.62, -1544.21, 30.68),
+            deathCoords = vec3(-28.08, -1546.89, 30.69),
             setup = {
                 loot = {
-                    min = 3,
-                    max = 7
+                    min = 2,
+                    max = 4
                 },
                 pickups = {
                     min = 1,
@@ -192,15 +225,16 @@ return {
             pickups = {}
         },
         [5] = {
-            routingbucket = 604,
+            routingbucket = 504,
             interior = 1,
             opened = false,
             secured = false,
-            coords = vec3(-64.58, -1449.61, 32.52),
+            coords = vec3(-24.74, -1556.90, 30.69),
+            deathCoords = vec3(-26.62, -1555.12, 30.69),
             setup = {
                 loot = {
-                    min = 3,
-                    max = 7
+                    min = 2,
+                    max = 4
                 },
                 pickups = {
                     min = 1,
@@ -211,15 +245,16 @@ return {
             pickups = {}
         },
         [6] = {
-            routingbucket = 605,
+            routingbucket = 505,
             interior = 1,
             opened = false,
             secured = false,
-            coords = vec3(-138.22, -1470.78, 36.99),
+            coords = vec3(-36.09, -1536.99, 34.62),
+            deathCoords = vec3(-32.97, -1542.95, 30.68),
             setup = {
                 loot = {
-                    min = 3,
-                    max = 7
+                    min = 2,
+                    max = 4
                 },
                 pickups = {
                     min = 1,
@@ -230,15 +265,16 @@ return {
             pickups = {}
         },
         [7] = {
-            routingbucket = 606,
-            interior = 2,
+            routingbucket = 506,
+            interior = 1,
             opened = false,
             secured = false,
-            coords = vec3(-884.14, -1072.51, 2.53),
+            coords = vec3(-44.59, -1547.17, 34.62),
+            deathCoords = vec3(-39.09, -1548.36, 30.69),
             setup = {
                 loot = {
-                    min = 4,
-                    max = 12
+                    min = 2,
+                    max = 4
                 },
                 pickups = {
                     min = 1,
@@ -249,15 +285,16 @@ return {
             pickups = {}
         },
         [8] = {
-            routingbucket = 607,
-            interior = 2,
+            routingbucket = 507,
+            interior = 1,
             opened = false,
             secured = false,
-            coords = vec3(-1134.11, -1050.19, 2.15),
+            coords = vec3(-77.71, -1515.28, 34.25),
+            deathCoords = vec3(-74.91, -1516.46, 34.25),
             setup = {
                 loot = {
-                    min = 4,
-                    max = 12
+                    min = 2,
+                    max = 4
                 },
                 pickups = {
                     min = 1,
@@ -268,15 +305,16 @@ return {
             pickups = {}
         },
         [9] = {
-            routingbucket = 608,
-            interior = 2,
+            routingbucket = 508,
+            interior = 1,
             opened = false,
             secured = false,
-            coords = vec3(-1089.85, -1680.31, 4.67),
+            coords = vec3(-71.79, -1508.08, 33.44),
+            deathCoords = vec3(-70.96, -1511.87, 33.44),
             setup = {
                 loot = {
-                    min = 4,
-                    max = 12
+                    min = 2,
+                    max = 4
                 },
                 pickups = {
                     min = 1,
@@ -287,15 +325,16 @@ return {
             pickups = {}
         },
         [10] = {
-            routingbucket = 609,
-            interior = 2,
+            routingbucket = 509,
+            interior = 1,
             opened = false,
             secured = false,
-            coords = vec3(960.01, -669.94, 58.45),
+            coords = vec3(-53.24, -1523.76, 33.44),
+            deathCoords = vec3(-57.78, -1523.09, 33.45),
             setup = {
                 loot = {
-                    min = 4,
-                    max = 12
+                    min = 2,
+                    max = 4
                 },
                 pickups = {
                     min = 1,

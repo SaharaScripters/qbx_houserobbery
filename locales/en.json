@@ -1,11 +1,11 @@
 {
     "text": {
         "enter_house": "[E] - Enter House",
-        "enter_requirements": "Lockpick | Screwdriver set",
+        "enter_requirements": "Use AdvancedLockpick",
         "leave_house": "[E] - Leave House",
         "search": "[E] - Search Around",
         "pickup": "[E] - Grab %s",
-        "police_secure": "[G] - Secure the house"
+        "police_secure": "[G] - Secure House"
     },
     "notify": {
         "no_police": "Not Enough Police (%s Required)",
@@ -17,6 +17,8 @@
         "no_skills": "You don't have the required skills to do this",
         "no_money": "You don't have enough money to do this",
         "no_houses": "No houses to rob",
-        "secured": "House Secured"
+        "secured": "House Secured",
+        "cant_carry": "You can not carry this item, your inventory is full",
+        "not_time": "It must be night to rob this house"
     }
 }
