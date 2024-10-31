@@ -216,15 +216,13 @@ local function generateLoot(reward)
 end
 
 local function canCarryLoot(src, loots)
-    local items = {}
-    local maxAmount = 0
+    local totalWeight = 0
     for item, amount in pairs(loots) do
-        items[1 + #items] = item
-        if amount > maxAmount then
-            maxAmount = amount
-        end
+        local itemData = exports.ox_inventory:Items(item)
+        if not itemData then return false end
+        totalWeight = totalWeight + (itemData.weight * amount)
     end
-    return exports.ox_inventory:CanCarryItem(src, items, maxAmount)
+    return exports.ox_inventory:CanCarryWeight(src, totalWeight)
 end
 
 -- Lockpick event handler for entering houses.
