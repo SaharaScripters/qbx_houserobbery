@@ -201,6 +201,32 @@ local function policeAlert(src, text, interiorId, coords)
     end)
 end
 
+local function generateLoot(reward)
+    local loots = {}
+    local lootCount = math.random(reward.togive.min, reward.togive.max)
+    local selectedLootCount = 0
+    while selectedLootCount < lootCount do
+        local loot = reward.items[math.random(#reward.items)]
+        if not loots[loot] then
+            loots[loot] = math.random(reward.toget.min, reward.toget.max)
+            selectedLootCount = selectedLootCount + 1
+        end
+    end
+    return loots
+end
+
+local function canCarryLoot(src, loots)
+    local items = {}
+    local maxAmount = 0
+    for item, amount in pairs(loots) do
+        items[1 + #items] = item
+        if amount > maxAmount then
+            maxAmount = amount
+        end
+    end
+    return exports.ox_inventory:CanCarryItem(src, items, maxAmount)
+end
+
 -- Lockpick event handler for entering houses.
 -- Triggers skillcheck callback on calling player before teleporting them inside
 ---@param isAdvanced boolean Is this an advanced lockpick
@@ -306,8 +332,14 @@ RegisterNetEvent('qbx_houserobbery:server:lootFinished', function(houseIndex, lo
     if not startedLoot[src] then return end
     if not loot.isBusy then return end
     if loot.isOpened then return end
-    for i = 1, math.random(reward.togive.min, reward.togive.max) do
-        player.Functions.AddItem(reward.items[i], math.random(reward.toget.min, reward.toget.max))
+    local loots = generateLoot(reward)
+    if not canCarryLoot(src, loots) then
+        exports.qbx_core:Notify(src, locale('notify.cant_carry'), 'error')
+        sharedConfig.houses[houseIndex].loot[lootIndex].isBusy = false
+        return
+    end
+    for item, amount in pairs(loots) do
+        player.Functions.AddItem(item, amount)
     end
     local interiorIndex = sharedConfig.houses[houseIndex].interior
     getLootExp(interiorIndex, src)
